@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://{{ persona }}/provisioning_api.js"></script>
+		<script>
+		
+		var xhr = new XMLHttpRequest();
+		
+		function getSession() {
+			
+			var nonce = localStorage.getItem('{{ key }}');
+			if (!nonce) {
+				return {}
+			}
+			
+			xhr.open('POST', '/persona/session', false);
+			xhr.send(nonce);
+			if (xhr.status != 200) {
+				return {};
+			} else {
+				return JSON.parse(xhr.responseText);
+			}
+			
+		}
+		
+		function active(email) {
+			return getSession().user == email;
+		}
+		
+		function generate(email, key, duration, cb) {
+			
+			key = JSON.parse(key);
+			var params = {'key': key, 'user': email, 'duration': duration};
+			var data = JSON.stringify(params);
+			xhr.open('POST', '/persona/certificate', false);
+			xhr.send(data);
+			if (xhr.status != 200) {
+				return;
+			}
+			
+			navigator.id.registerCertificate(xhr.responseText);
+			
+		}
+		
+		navigator.id.beginProvisioning(function(email, certDuration) {
+			if (active(email)) {
+				navigator.id.genKeyPair(function(pubKey) {
+					generate(email, pubKey, certDuration);
+				});
+			} else {
+				navigator.id.raiseProvisioningFailure('user is not authenticated as target user');
+			}
+		});
+		
+		</script>
+	</head>
+	<body>
+	
+	</body>
+</html>

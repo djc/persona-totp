@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://{{ persona }}/authentication_api.js"></script>
+		<script>
+		
+		var xhr = new XMLHttpRequest();
+		
+		function getSession() {
+			
+			var nonce = localStorage.getItem('{{ key }}');
+			if (!nonce) {
+				return {}
+			}
+			
+			xhr.open('POST', '/persona/session', false);
+			xhr.send(nonce);
+			if (xhr.status != 200) {
+				return {};
+			} else {
+				return JSON.parse(xhr.responseText);
+			}
+			
+		}
+		
+		function verify() {
+			
+			var user = document.getElementById('user').value;
+			var totp = document.getElementById('totp').value;
+			var data = JSON.stringify({"user": user, "totp": totp});
+			xhr.open('POST', '/persona/verify', false);
+			xhr.send(data);
+			
+			if (xhr.status != 200) {
+				navigator.id.raiseAuthenticationFailure('server error');
+				return;
+			}
+			
+			var rsp = JSON.parse(xhr.responseText);
+			if (rsp.status == 'okay') {
+				localStorage.setItem('{{ key }}', rsp.nonce);
+				navigator.id.completeAuthentication();
+			} else {
+				navigator.id.raiseAuthenticationFailure('authentication failed');
+			}
+			
+		}
+		
+		navigator.id.beginAuthentication(function(email) {
+			
+			if (email == getSession().user) {
+				navigator.id.completeAuthentication();
+				return;
+			}
+			
+			var form = document.forms[0];
+			form.style.position = 'absolute';
+			form.style.top = '' + (document.documentElement.clientHeight / 2 - 55) + 'px';
+			form.style.left = '' + (document.documentElement.clientWidth / 2 - 190) + 'px';
+			form.style.display = 'block';
+			document.getElementById('user').value = email;
+			document.getElementById('hint').innerHTML = 'TOTP: ' + (email || 'undefined');
+			
+		});
+		
+		</script>
+		<style>
+			
+			form {
+				text-align: center;
+			}
+			
+			input {
+				font-size: 30pt;
+				width: 6em;
+				margin: 0;
+			}
+			
+			p {
+				font-family: "Lucida Grande", "Segoe UI", "Roboto", "Helvetica", sans-serif;
+				text-align: center;
+				font-size: 20pt;
+				margin: 15px;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<form onsubmit="verify(); return false;" style="display: none;">
+			<input id="user" type="hidden" name="user">
+			<p id="hint"></p>
+			<input id="totp" type="number" name="totp" autofocus="true" required="true">
+		</form>
+	</body>
+</html>
