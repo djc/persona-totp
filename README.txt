@@ -16,12 +16,18 @@ Requirements
 
 PyCrypto is currently used for cryptographic primitives. This could be swapped
 out for other implementations (such as M2Crypto) by writing a few stubs.
-localStorage should be supported in most fairly recent browsers, see
-http://caniuse.com/namevalue-storage. An alternative implementation using
-IndexedDB would probably be a good idea, see
-https://blog.mozilla.org/tglek/2012/02/22/psa-dom-local-storage-considered-harmful/.
+
+localStorage should be supported in most fairly recent browsers, see [1].
+I tried it with cookies first, but unfortunately that doesn't work if you
+disable third-party cookies, which I usually do. An alternative implementation
+using IndexedDB would probably be a good idea, see [2].
+
 The easiest way of using TOTP is installing the Google Authenticator
-application on your mobile device.
+application on your mobile device, find links to it on your app store at [3].
+
+[1] http://caniuse.com/namevalue-storage
+[2] https://blog.mozilla.org/tglek/2012/02/22/psa-dom-local-storage-considered-harmful/
+[3] http://code.google.com/p/google-authenticator/
 
 How to install
 --------------
@@ -52,26 +58,30 @@ How to install
     }
 
   persona.py currently looks for it in its own directory, as secrets.json.
+  "me" is the local part of an email address (i.e. me@example.com).
+  
   You should also install the TOTP key in the TOTP client at this point.
   In Google Authenticator, use "Set up account", then "Enter provided key".
-  Use your email address as the account name and the generated secret as
-  your key.
+  Use your email address as the account name (though this isn't actually
+  used) and the generated secret as your key.
 
 - Create a support document:
 
     $ python persona.py support > browserid
 
-  Save it in the .well-known directory on your email domain. See
-  https://developer.mozilla.org/en-US/docs/Persona/IdP_Development_Tips
-  for some tips on how to serve it correctly.
+  Save it in the .well-known directory on your email domain. See [4] for some
+  tips on how to serve it correctly.
 
 - Run the application() callable from persona.py as a WSGI application
   and make sure the URLs in the support document point at it. Make sure
   to keep your secrets.json and private.pem private!
 
+[4] https://developer.mozilla.org/en-US/docs/Persona/IdP_Development_Tips
+
 Further information
 -------------------
 
-persona-totp was created by Dirkjan Ochtman. It can be found at
-https://bitbucket.org/djc/persona-totp. Please report any issues there
-(or better yet, open a pull request!).
+persona-totp was created by Dirkjan Ochtman. It can be found at [5]. Please
+report any issues there (or better yet, send me a pull request!).
+
+[5] https://bitbucket.org/djc/persona-totp
