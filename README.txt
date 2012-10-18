@@ -52,6 +52,10 @@ How to install
     }
 
   persona.py currently looks for it in its own directory, as secrets.json.
+  You should also install the TOTP key in the TOTP client at this point.
+  In Google Authenticator, use "Set up account", then "Enter provided key".
+  Use your email address as the account name and the generated secret as
+  your key.
 
 - Create a support document:
 
