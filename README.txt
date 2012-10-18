@@ -8,7 +8,7 @@ in web development and cryptography to handle your identity.
 Requirements
 ------------
 
-- Python 2.7
+- Tested on Python 2.7 (2.6 might work, too)
 - PyCrypto
 - HTML5 localStorage in your browsers
 - A TOTP (RFC 6238) implementation for identification
