@@ -62,4 +62,5 @@ How to install
   for some tips on how to serve it correctly.
 
 - Run the application() callable from persona.py as a WSGI application
-  and make sure the URLs in the support document point at it.
+  and make sure the URLs in the support document point at it. Make sure
+  to keep your secrets.json and private.pem private!
