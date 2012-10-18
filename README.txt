@@ -64,3 +64,10 @@ How to install
 - Run the application() callable from persona.py as a WSGI application
   and make sure the URLs in the support document point at it. Make sure
   to keep your secrets.json and private.pem private!
+
+Further information
+-------------------
+
+persona-totp was created by Dirkjan Ochtman. It can be found at
+https://bitbucket.org/djc/persona-totp. Please report any issues there
+(or better yet, open a pull request!).
