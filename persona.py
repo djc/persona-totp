@@ -161,7 +161,8 @@ def application(env, respond):
 		
 		assert env['REQUEST_METHOD'] == 'POST'
 		params = json.loads(env['wsgi.input'].read())
-		claims = {'iss': 'ochtman.nl', 'public-key': params['key']}
+		host = params['user'].split('@')[1]
+		claims = {'iss': host, 'public-key': params['key']}
 		duration = min(24 * 60 * 60, params['duration'])
 		claims['iat'] = int(time.time()) * 1000
 		claims['exp'] = claims['iat'] + duration * 1000
