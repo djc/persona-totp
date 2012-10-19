@@ -151,7 +151,7 @@ def application(env, respond):
 		claims['exp'] = claims['iat'] + duration * 1000
 		claims['principal'] = {'email': params['user']}
 		
-		headers['Content-Type'] = 'application/json'
+		headers['Content-Type'] = 'text/plain; charset=utf-8'
 		respond('200 OK', headers.items())
 		return [sign(claims, KEY)]
 	
