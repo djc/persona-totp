@@ -134,12 +134,6 @@ handlers = {
 
 def application(env, respond):
 	
-	referrer = env.get('HTTP_REFERER')
-	if referrer is not None:
-		persona = urlparse.urlparse(referrer).netloc
-	else:
-		persona = 'login.persona.org'
-	
 	rsp = 404, 'text', 'not found'
 	pi = [] if not env['PATH_INFO'] else env['PATH_INFO'].strip('/').split('/')
 	if pi and pi[0] in handlers:
@@ -147,10 +141,15 @@ def application(env, respond):
 	
 	if rsp[1].endswith('.html'):
 		headers = {'Content-Type': 'text/html; charset=utf-8'}
+		persona = 'login.persona.org'
+		if env.get('HTTP_REFERER'):
+			persona = urlparse.urlparse(env['HTTP_REFERER']).netloc
 		content = render(rsp[1], {'key': STORAGE_KEY, 'persona': persona})
+	
 	elif rsp[1] == 'json':
 		headers = {'Content-Type': 'application/json'}
 		content = json.dumps(rsp[2])
+	
 	elif rsp[1] == 'text':
 		headers = {'Content-Type': 'text/plain; charset=utf-8'}
 		content = rsp[2]
