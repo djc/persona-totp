@@ -91,6 +91,47 @@ def render(tmpl, vars):
 			src = src.replace('{{ %s }}' % k, v)
 		return src
 
+def provision(env):
+	return 200, 'provision.html'
+
+def authenticate(env):
+	return 200, 'authenticate.html'
+
+def verify(env):
+	
+	assert env['REQUEST_METHOD'] == 'POST'
+	data = json.loads(env['wsgi.input'].read())
+	user = data['user'].split('@', 1)[0]
+	secret = SECRETS[user]['totp'].encode('utf-8')
+	
+	if data['totp'] in totp(secret, 1):
+		session = wrap(SECRETS['cookie'], user=data['user'])
+		return 200, 'json', {'status': 'okay', 'nonce': session}
+	else:
+		return 200, 'json', {'status': 'failed'}
+
+def session(env):
+	assert env['REQUEST_METHOD'] == 'POST'
+	return 200, 'json', unwrap(SECRETS['cookie'], env['wsgi.input'].read())
+	
+def certificate(env):
+	
+	assert env['REQUEST_METHOD'] == 'POST'
+	params = json.loads(env['wsgi.input'].read())
+	host = params['user'].split('@')[1]
+	
+	claims = {'iss': host, 'public-key': params['key']}
+	duration = min(24 * 60 * 60, params['duration'])
+	claims['iat'] = int(time.time()) * 1000
+	claims['exp'] = claims['iat'] + duration * 1000
+	claims['principal'] = {'email': params['user']}
+	return 200, 'text', sign(claims, KEY)
+
+handlers = {
+	'provision': provision, 'authenticate': authenticate, 'verify': verify,
+	'session': session, 'certificate': certificate,
+}
+
 def application(env, respond):
 	
 	referrer = env.get('HTTP_REFERER')
@@ -99,66 +140,24 @@ def application(env, respond):
 	else:
 		persona = 'login.persona.org'
 	
-	vars = {
-		'key': STORAGE_KEY,
-		'persona': persona,
-	}
+	rsp = 404, 'text', 'not found'
+	pi = [] if not env['PATH_INFO'] else env['PATH_INFO'].strip('/').split('/')
+	if pi and pi[0] in handlers:
+		rsp = handlers[pi[0]](env)
 	
-	headers = {
-		'Content-Type': 'text/html; charset=utf-8',
-	}
+	if rsp[1].endswith('.html'):
+		headers = {'Content-Type': 'text/html; charset=utf-8'}
+		content = render(rsp[1], {'key': STORAGE_KEY, 'persona': persona})
+	elif rsp[1] == 'json':
+		headers = {'Content-Type': 'application/json'}
+		content = json.dumps(rsp[2])
+	elif rsp[1] == 'text':
+		headers = {'Content-Type': 'text/plain; charset=utf-8'}
+		content = rsp[2]
 	
-	if '/provision' in env['REQUEST_URI']:
-		respond('200 OK', headers.items())
-		return [render('provision.html', vars)]
-	
-	elif '/authenticate' in env['REQUEST_URI']:
-		respond('200 OK', headers.items())
-		return [render('authenticate.html', vars)]
-	
-	elif '/verify' in env['REQUEST_URI']:
-		
-		assert env['REQUEST_METHOD'] == 'POST'
-		data = json.loads(env['wsgi.input'].read())
-		user = data['user'].split('@', 1)[0]
-		secret = SECRETS[user]['totp'].encode('utf-8')
-		
-		if data['totp'] in totp(secret, 1):
-			session = wrap(SECRETS['cookie'], user=data['user'])
-			rsp = {'status': 'okay', 'nonce': session}
-		else:
-			rsp = {'status': 'failed'}
-		
-		headers['Content-Type'] = 'application/json'
-		respond('200 OK', headers.items())
-		return [json.dumps(rsp)]
-	
-	elif '/session' in env['REQUEST_URI']:
-		assert env['REQUEST_METHOD'] == 'POST'
-		session = unwrap(SECRETS['cookie'], env['wsgi.input'].read())
-		headers['Content-Type'] = 'application/json'
-		respond('200 OK', headers.items())
-		return [json.dumps(session)]
-	
-	elif '/certificate' in env['REQUEST_URI']:
-		
-		assert env['REQUEST_METHOD'] == 'POST'
-		params = json.loads(env['wsgi.input'].read())
-		host = params['user'].split('@')[1]
-		claims = {'iss': host, 'public-key': params['key']}
-		duration = min(24 * 60 * 60, params['duration'])
-		claims['iat'] = int(time.time()) * 1000
-		claims['exp'] = claims['iat'] + duration * 1000
-		claims['principal'] = {'email': params['user']}
-		
-		headers['Content-Type'] = 'text/plain; charset=utf-8'
-		respond('200 OK', headers.items())
-		return [sign(claims, KEY)]
-	
-	else:
-		headers['Content-Type'] = 'text/plain; charset=utf-8'
-		respond('404 Not Found', headers.items())
-		return ['not found']
+	status = {200: '200 OK', 404: '404 Not Found'}
+	respond(status[rsp[0]], headers.items())
+	return [content]
 
 # Some command-line utilities
 
