@@ -45,19 +45,17 @@ def validate(token, key):
 
 # Functions for secure cookies
 
-def wrap(**vals):
-	secret = bytestr(SECRETS['cookie'])
+def wrap(secret, **vals):
 	expires = datetime.utcnow() + timedelta(EXPIRES)
 	vals['expires'] = expires.strftime(DATE_FMT)
 	data = b64uencode(json.dumps(vals))
-	sig = b64uencode(hmac.new(secret, data, hashlib.sha1).digest())
+	sig = b64uencode(hmac.new(bytestr(secret), data, hashlib.sha1).digest())
 	return data + '.' + sig
 
-def unwrap(s):
+def unwrap(secret, s):
 	
-	secret = bytestr(SECRETS['cookie'])
 	data, sig = s.split('.')
-	new = b64uencode(hmac.new(secret, data, hashlib.sha1).digest())
+	new = b64uencode(hmac.new(bytestr(secret), data, hashlib.sha1).digest())
 	if new != sig:
 		return {}
 	
@@ -126,7 +124,7 @@ def application(env, respond):
 		secret = SECRETS[user]['totp'].encode('utf-8')
 		
 		if data['totp'] in totp(secret, 1):
-			session = wrap(user=data['user'])
+			session = wrap(SECRETS['cookie'], user=data['user'])
 			rsp = json.dumps({'status': 'okay', 'nonce': session})
 		else:
 			rsp = json.dumps({'status': 'failed'})
@@ -137,7 +135,7 @@ def application(env, respond):
 	
 	elif '/session' in env['REQUEST_URI']:
 		assert env['REQUEST_METHOD'] == 'POST'
-		session = unwrap(env['wsgi.input'].read())
+		session = unwrap(SECRETS['cookie'], env['wsgi.input'].read())
 		headers['Content-Type'] = 'application/json'
 		respond('200 OK', headers.items())
 		return [json.dumps(session)]
