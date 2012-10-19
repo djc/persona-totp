@@ -125,13 +125,13 @@ def application(env, respond):
 		
 		if data['totp'] in totp(secret, 1):
 			session = wrap(SECRETS['cookie'], user=data['user'])
-			rsp = json.dumps({'status': 'okay', 'nonce': session})
+			rsp = {'status': 'okay', 'nonce': session}
 		else:
-			rsp = json.dumps({'status': 'failed'})
+			rsp = {'status': 'failed'}
 		
 		headers['Content-Type'] = 'application/json'
 		respond('200 OK', headers.items())
-		return [rsp]
+		return [json.dumps(rsp)]
 	
 	elif '/session' in env['REQUEST_URI']:
 		assert env['REQUEST_METHOD'] == 'POST'
