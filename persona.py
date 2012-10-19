@@ -18,15 +18,16 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 SECRETS = json.load(open(os.path.join(DIR, 'secrets.json')))
 KEY = RSA.importKey(open(os.path.join(DIR, 'private.pem')))
 
+def bytestr(s, enc='ascii'):
+	return s.encode(enc) if isinstance(s, unicode) else s
+
 # Some bits for JWT
 
 def b64uencode(s):
-	if isinstance(s, unicode): s = s.encode('utf-8')
-	return base64.urlsafe_b64encode(s).replace('=', '')
+	return base64.urlsafe_b64encode(bytestr(s, 'utf-8')).replace('=', '')
 
 def b64udecode(s):
-	if isinstance(s, unicode): s = s.encode('ascii')
-	s += '=' * (4 - (len(s) % 4))
+	s = bytestr(s) + '=' * (4 - (len(s) % 4))
 	return base64.urlsafe_b64decode(s)
 
 def sign(payload, key):
@@ -45,11 +46,7 @@ def validate(token, key):
 # Functions for secure cookies
 
 def wrap(**vals):
-	
-	secret = SECRETS['cookie']
-	if isinstance(secret, unicode):
-		secret = secret.encode('utf-8')
-	
+	secret = bytestr(SECRETS['cookie'])
 	expires = datetime.utcnow() + timedelta(EXPIRES)
 	vals['expires'] = expires.strftime(DATE_FMT)
 	data = b64uencode(json.dumps(vals))
@@ -58,10 +55,7 @@ def wrap(**vals):
 
 def unwrap(s):
 	
-	secret = SECRETS['cookie']
-	if isinstance(secret, unicode):
-		secret = secret.encode('utf-8')
-	
+	secret = bytestr(SECRETS['cookie'])
 	data, sig = s.split('.')
 	new = b64uencode(hmac.new(secret, data, hashlib.sha1).digest())
 	if new != sig:
