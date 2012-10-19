@@ -44,15 +44,6 @@ def validate(token, key):
 
 # Functions for secure cookies
 
-DAYS = 'Mon Tue Wed Thu Fri Sat Sun'.split()
-MONTHS = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split()
-
-def datestr(dt):
-	t = dt.utctimetuple()
-	wd, m = DAYS[t.tm_wday], MONTHS[t.tm_mon - 1]
-	bits = wd, t.tm_mday, m, t.tm_year, t.tm_hour, t.tm_min, t.tm_sec
-	return '%s, %02d-%s-%s %02d:%02d:%02d GMT' % bits
-
 def wrap(**vals):
 	
 	secret = SECRETS['cookie']
