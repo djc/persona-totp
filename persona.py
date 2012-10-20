@@ -47,7 +47,8 @@ def validate(token, key):
 
 def wrap(secret, **vals):
 	expires = datetime.utcnow() + timedelta(EXPIRES)
-	vals['expires'] = expires.strftime(DATE_FMT)
+	if 'expires' not in vals:
+		vals['expires'] = expires.strftime(DATE_FMT)
 	data = b64uencode(json.dumps(vals))
 	sig = b64uencode(hmac.new(bytestr(secret), data, hashlib.sha1).digest())
 	return data + '.' + sig
