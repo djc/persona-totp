@@ -17,17 +17,17 @@ Requirements
 PyCrypto is currently used for cryptographic primitives. This could be swapped
 out for other implementations (such as M2Crypto) by writing a few stubs.
 
-localStorage should be supported in most fairly recent browsers, see [1].
-I tried it with cookies first, but unfortunately that doesn't work if you
-disable third-party cookies, which I usually do. An alternative implementation
-using IndexedDB would probably be a good idea, see [2].
+localStorage should be `supported`_ in most fairly recent browsers. I tried it
+with cookies first, but unfortunately that doesn't work if you disable
+third-party cookies, which I usually do. An alternative implementation
+using IndexedDB would probably be `a good idea`_.
 
-The easiest way of using TOTP is installing the Google Authenticator
-application on your mobile device, find links to it on your app store at [3].
+The easiest way of using TOTP is installing the `Google Authenticator`_
+application on your mobile device (click link for app store links).
 
-[1] http://caniuse.com/namevalue-storage
-[2] https://blog.mozilla.org/tglek/2012/02/22/psa-dom-local-storage-considered-harmful/
-[3] http://code.google.com/p/google-authenticator/
+.. _supported: http://caniuse.com/namevalue-storage
+.. _a good idea: https://blog.mozilla.org/tglek/2012/02/22/psa-dom-local-storage-considered-harmful/
+.. _Google Authenticator: http://code.google.com/p/google-authenticator/
 
 How to install
 --------------
@@ -69,19 +69,19 @@ How to install
 
     $ python persona.py support > browserid
 
-  Save it in the .well-known directory on your email domain. See [4] for some
-  tips on how to serve it correctly.
+  Save it in the .well-known directory on your email domain. Serving it
+  correctly isn't trivial, so find `some tips`_ online.
 
 - Run the application() callable from persona.py as a WSGI application
   and make sure the URLs in the support document point at it. Make sure
   to keep your secrets.json and private.pem private!
 
-[4] https://developer.mozilla.org/en-US/docs/Persona/IdP_Development_Tips
+.. _some tips: https://developer.mozilla.org/en-US/docs/Persona/IdP_Development_Tips
 
 Further information
 -------------------
 
-persona-totp was created by Dirkjan Ochtman. It can be found at [5]. Please
-report any issues there (or better yet, send me a pull request!).
+persona-totp was created by Dirkjan Ochtman. It is `hosted`_ at Bitbucket;
+please report any issues there (or better yet, send me a pull request!).
 
-[5] https://bitbucket.org/djc/persona-totp
+.. _hosted: https://bitbucket.org/djc/persona-totp
