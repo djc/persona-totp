@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 from Crypto.PublicKey import RSA
-import unittest, persona
+import unittest, persona, os
 
 try:
 	import simplejson as json
@@ -91,6 +91,11 @@ class IdPTests(unittest.TestCase):
 		assert claims['iss'] == 'example.com'
 		assert claims['principal']['email'] == 'me@example.com'
 		assert claims['exp'] - claims['iat'] == 21600000
+	
+	def test_hs256(self):
+		key = os.urandom(20)
+		jws = persona.sign({'foo': 'bar'}, key, 'HS256')
+		assert persona.validate(jws, key)
 
 if __name__ == '__main__':
     unittest.main()

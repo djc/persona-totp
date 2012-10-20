@@ -30,18 +30,26 @@ def b64udecode(s):
 	s = bytestr(s) + '=' * (4 - (len(s) % 4))
 	return base64.urlsafe_b64decode(s)
 
-def sign(payload, key):
-	h = json.dumps({'alg': 'RS256'})
+def sign(payload, key, alg='RS256'):
+	h = json.dumps({'alg': alg})
 	input = b64uencode(h) + '.' + b64uencode(json.dumps(payload))
-	sig = PKCS1_v1_5.new(key).sign(SHA256.new(input))
+	if alg == 'RS256':
+		sig = PKCS1_v1_5.new(key).sign(SHA256.new(input))
+	elif alg == 'HS256':
+		sig = hmac.new(key, input, hashlib.sha256).digest()
 	return input + '.' + b64uencode(sig)
 
 def validate(token, key):
 	parts = token.split('.')
 	h = json.loads(b64udecode(parts[0]))
-	assert h['alg'] == 'RS256'
-	input = SHA256.new('.'.join(parts[:2]))
-	return PKCS1_v1_5.new(key).verify(input, b64udecode(parts[2]))
+	assert h['alg'] in set(('RS256', 'HS256'))
+	input = '.'.join(parts[:2])
+	if h['alg'] == 'RS256':
+		hashed = SHA256.new(input)
+		return PKCS1_v1_5.new(key).verify(hashed, b64udecode(parts[2]))
+	else:
+		sig = hmac.new(key, input, hashlib.sha256).digest()
+		return sig == b64udecode(parts[2])
 
 # Functions for secure cookies
 
