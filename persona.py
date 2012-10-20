@@ -21,7 +21,7 @@ KEY = RSA.importKey(open(os.path.join(DIR, 'private.pem')))
 def bytestr(s, enc='ascii'):
 	return s.encode(enc) if isinstance(s, unicode) else s
 
-# Some bits for JWT
+# Some bits for JWS
 
 def b64uencode(s):
 	return base64.urlsafe_b64encode(bytestr(s, 'utf-8')).replace('=', '')
