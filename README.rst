@@ -85,3 +85,14 @@ persona-totp was created by Dirkjan Ochtman. It is `hosted`_ at Bitbucket;
 please report any issues there (or better yet, send me a pull request!).
 
 .. _hosted: https://bitbucket.org/djc/persona-totp
+
+Changes
+-------
+
+Changes in 0.2 (2012-10-20)
+
+* Add a test suite
+* Refactor WSGI application, for less code repetition and easier testing
+* Improved handling of Unicode strings
+* Support HS256 algorithm for JWS
+* Slightly improved documentation
