@@ -89,6 +89,10 @@ please report any issues there (or better yet, send me a pull request!).
 Changes
 -------
 
+Changes in 0.3 (xxxxxxxxxx)
+
+* Implement slow comparison method to defend against timing attacks
+
 Changes in 0.2 (2012-10-20)
 
 * Add a test suite

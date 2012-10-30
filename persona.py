@@ -3,7 +3,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 from Crypto.Hash import SHA256
 
-import base64, hashlib, hmac, os, struct, time, urlparse, sys
+import base64, hashlib, hmac, os, struct, time, urlparse, sys, itertools
 
 try:
 	import simplejson as json
@@ -20,6 +20,10 @@ KEY = RSA.importKey(open(os.path.join(DIR, 'private.pem')))
 
 def bytestr(s, enc='ascii'):
 	return s.encode(enc) if isinstance(s, unicode) else s
+
+def safecmp(a, b):
+	pairs = itertools.izip_longest(a, b, fillvalue=' ')
+	return not sum(ord(x) ^ ord(y) for (x, y) in pairs)
 
 # Some bits for JWS
 
@@ -49,7 +53,7 @@ def validate(token, key):
 		return PKCS1_v1_5.new(key).verify(hashed, b64udecode(parts[2]))
 	else:
 		sig = hmac.new(key, input, hashlib.sha256).digest()
-		return sig == b64udecode(parts[2])
+		return safecmp(sig, b64udecode(parts[2]))
 
 # Functions for secure cookies
 
@@ -65,7 +69,7 @@ def unwrap(secret, s):
 	
 	data, sig = s.split('.')
 	new = b64uencode(hmac.new(bytestr(secret), data, hashlib.sha1).digest())
-	if new != sig:
+	if not safecmp(new, sig):
 		return {}
 	
 	data = json.loads(b64udecode(data))
