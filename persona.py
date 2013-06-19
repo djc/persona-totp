@@ -156,7 +156,8 @@ def application(env, respond):
 		headers = {'Content-Type': 'text/html; charset=utf-8'}
 		persona = 'login.persona.org'
 		if env.get('HTTP_REFERER'):
-			persona = urlparse.urlparse(env['HTTP_REFERER']).netloc
+			referrer = urlparse.urlparse(env['HTTP_REFERER'])
+			persona = referrer.scheme + '://' + referrer.netloc
 		content = render(rsp[1], {'key': STORAGE_KEY, 'persona': persona})
 	
 	elif rsp[1] == 'json':
