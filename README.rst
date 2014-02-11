@@ -81,10 +81,10 @@ How to install
 Further information
 -------------------
 
-persona-totp was created by Dirkjan Ochtman. It is `hosted`_ at Bitbucket;
+persona-totp was created by Dirkjan Ochtman. It is `hosted`_ at Github;
 please report any issues there (or better yet, send me a pull request!).
 
-.. _hosted: https://bitbucket.org/djc/persona-totp
+.. _hosted: https://github.com/djc/persona-totp
 
 Changes
 -------
