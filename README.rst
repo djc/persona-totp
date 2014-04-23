@@ -5,6 +5,9 @@ This is a small implementation of a Mozilla Persona Identity Provider (IdP).
 It's designed to be secure and easy to deploy, relying on a host of standards
 in web development and cryptography to handle your identity.
 
+**WARNING:** while I've tried to make persona-totp secure, I have not had
+substantial training in either security or cryptography. Be careful.
+
 Requirements
 ------------
 
