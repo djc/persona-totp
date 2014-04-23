@@ -89,9 +89,13 @@ please report any issues there (or better yet, send me a pull request!).
 Changes
 -------
 
-Changes in 0.3 (xxxxxxxxxx)
+Changes in 0.3 (2014-04-23)
 
+* Make sure we don't include script from a random host
+* Only allow certificate to be built from a currently valid session
 * Implement slow comparison method to defend against timing attacks
+
+Thanks to rhy-jot for pointing out security problems fixed in this version.
 
 Changes in 0.2 (2012-10-20)
 
