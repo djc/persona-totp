@@ -131,13 +131,16 @@ def certificate(env):
 	
 	assert env['REQUEST_METHOD'] == 'POST'
 	params = json.loads(env['wsgi.input'].read())
-	host = params['user'].split('@')[1]
+	session = unwrap(SECRETS['cookie'], params['session'])
+	if not session or 'user' not in session:
+		return 403, 'text', 'invalid session nonce'
 	
+	host = session['user'].split('@')[1]
 	claims = {'iss': host, 'public-key': params['key']}
 	duration = min(24 * 60 * 60, params['duration'])
 	claims['iat'] = int(time.time()) * 1000
 	claims['exp'] = claims['iat'] + duration * 1000
-	claims['principal'] = {'email': params['user']}
+	claims['principal'] = {'email': session['user']}
 	return 200, 'text', sign(claims, KEY)
 
 handlers = {
@@ -168,7 +171,7 @@ def application(env, respond):
 		headers = {'Content-Type': 'text/plain; charset=utf-8'}
 		content = rsp[2]
 	
-	status = {200: '200 OK', 404: '404 Not Found'}
+	status = {200: '200 OK', 403: '403 Forbidden', 404: '404 Not Found'}
 	respond(status[rsp[0]], headers.items())
 	return [content]
 

@@ -29,9 +29,11 @@
 		
 		function generate(email, key, duration, cb) {
 			
-			key = JSON.parse(key);
-			var params = {'key': key, 'user': email, 'duration': duration};
-			var data = JSON.stringify(params);
+			var data = JSON.stringify({
+				'key': JSON.parse(key),
+				'duration': duration,
+				'session': localStorage.getItem('{{ key }}')
+			});
 			xhr.open('POST', '/persona/certificate', false);
 			xhr.send(data);
 			if (xhr.status != 200) {
