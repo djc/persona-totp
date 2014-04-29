@@ -92,6 +92,13 @@ please report any issues there (or better yet, send me a pull request!).
 Changes
 -------
 
+Changes in 0.4 (xxxx-xx-xx)
+
+* Prevent script includes from prefix{persona.org,anosrep.org}
+* Prevent XSS by escaping email address before adding it to the DOM
+
+Thanks for rhy-jot and Gervase Markham for pointing out these problems.
+
 Changes in 0.3 (2014-04-23)
 
 * Make sure we don't include script from a random host
