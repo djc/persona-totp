@@ -12,7 +12,6 @@ except ImportError:
 
 EXPIRES = 30 # days
 STORAGE_KEY = 'Persona-TOTP'
-SCRIPT_ALLOWED = {'persona.org', 'anosrep.org'}
 DEFAULT_PERSONA_HOST = 'https://login.persona.org'
 DATE_FMT = '%Y-%m-%d %H:%M:%S'
 
@@ -158,13 +157,17 @@ def application(env, respond):
 		rsp = handlers[pi[0]](env)
 	
 	if rsp[1].endswith('.html'):
-		headers = {'Content-Type': 'text/html; charset=utf-8'}
+		
 		persona = DEFAULT_PERSONA_HOST
 		if env.get('HTTP_REFERER'):
 			referrer = urlparse.urlparse(env['HTTP_REFERER'])
-			persona = referrer.scheme + '://' + referrer.netloc
-			check = [referrer.netloc.endswith(i) for i in SCRIPT_ALLOWED]
-			persona = persona if any(check) else DEFAULT_PERSONA_HOST
+			for h in {'persona.org', 'anosrep.org', env['HTTP_HOST']}:
+				s = referrer.scheme + '://' + referrer.netloc
+				if s == h or s.endswith(h) and s[-len(h) - 1] == '.':
+					persona = s
+					break
+		
+		headers = {'Content-Type': 'text/html; charset=utf-8'}
 		content = render(rsp[1], {'key': STORAGE_KEY, 'persona': persona})
 	
 	elif rsp[1] == 'json':
