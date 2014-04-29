@@ -46,6 +46,12 @@
 			
 		}
 		
+		function escapeHTML(s) {
+		    var pre = document.createElement('pre');
+		    pre.appendChild(document.createTextNode(s));
+		    return pre.innerHTML;
+		}
+		
 		navigator.id.beginAuthentication(function(email) {
 			
 			if (email == getSession().user) {
@@ -59,7 +65,7 @@
 			form.style.left = '' + (document.documentElement.clientWidth / 2 - 190) + 'px';
 			form.style.display = 'block';
 			document.getElementById('user').value = email;
-			document.getElementById('hint').innerHTML = 'TOTP: ' + (email || 'undefined');
+			document.getElementById('hint').innerHTML = escapeHTML('TOTP: ' + (email || 'undefined'));
 			
 		});
 		
