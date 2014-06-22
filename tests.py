@@ -80,9 +80,12 @@ class IdPTests(unittest.TestCase):
 		assert not persona.unwrap(SECRETS['cookie'], nonce)
 	
 	def test_certificate(self):
+
+		totp = persona.totp(SECRETS['me']['totp']).pop()
+		req = testenv(json.dumps({'user': 'me@example.com', 'totp': totp}))
+		session = persona.verify(req)[2]['nonce']
 		
-		params = {'user': 'me@example.com', 'key': {'foo': 'bar'}}
-		params['duration'] = 21600
+		params = {'key': {'foo': 'bar'}, 'session': session, 'duration': 21600}
 		req = testenv(json.dumps(params))
 		jwt = persona.certificate(req)[2]
 		assert persona.validate(jwt, KEY)
